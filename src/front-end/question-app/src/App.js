@@ -11,7 +11,7 @@ function App() {
 
   async function fetchQuestions() {
     try {
-      const response = await fetch('/question');
+      const response = await fetch('http://localhost:5001/question');
       const data = await response.json();
       setQuestions(data);
     } catch (error) {
@@ -31,7 +31,7 @@ function App() {
 
   async function handleSubmit() {
     try {
-      const response = await fetch('/question/answer', {
+      const response = await fetch('http://localhost:5001/question/answer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
