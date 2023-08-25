@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
 
 function App() {
   const [questions, setQuestions] = useState([]);
@@ -9,62 +8,69 @@ function App() {
     fetchQuestions();
   }, []);
 
-  async function fetchQuestions() {
+  const fetchQuestions = async () => {
     try {
       const response = await fetch('http://localhost:5001/question');
       const data = await response.json();
       setQuestions(data);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching questions:', error);
     }
-  }
+  };
 
-  function handleCheckboxChange(event, questionId) {
-    const value = event.target.value;
-    setAnswers(prevAnswers => ({
+  const handleAnswerChange = (questionId, selectedAnswer) => {
+    setAnswers((prevAnswers) => ({
       ...prevAnswers,
-      [questionId]: prevAnswers[questionId]
-        ? [...prevAnswers[questionId], value]
-        : [value],
+      [questionId]: selectedAnswer,
     }));
-  }
+  };
 
-  async function handleSubmit() {
+  const handleSubmitAnswers = async () => {
     try {
-      const response = await fetch('http://localhost:5001/question/answer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(answers),
-      });
-
-      const result = await response.json();
-      console.log(result);
+      for (const question of questions) {
+        const selectedAnswer = answers[question._id] || '';
+        const response = await fetch(`http://localhost:5001/question?id=${question._id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ answer: selectedAnswer }),
+        });
+        const result = await response.text();
+        console.log(result);
+      }
     } catch (error) {
-      console.error(error);
+      console.error('Error submitting answers:', error);
     }
-  }
+  };
 
   return (
     <div className="App">
-      <h1>Questionário</h1>
-      {questions.map(question => (
-        <div key={question._id} className="question">
-          <h3>{question.title}</h3>
-          {question.alternatives.map((alternative, index) => (
-            <label key={index}>
-              <input
-                type="checkbox"
-                value={index}
-                onChange={e => handleCheckboxChange(e, question._id)}
-              />
-              {alternative}
-            </label>
-          ))}
-        </div>
-      ))}
-      <button onClick={handleSubmit}>Enviar</button>
+      <h1>Quiz App</h1>
+      <div>
+        {questions.map((question) => (
+          <div key={question._id}>
+            <h3>{question.title}</h3>
+            <ul>
+              {question.alternatives.map((alternative, index) => (
+                <li key={index}>
+                  <label>
+                    <input
+                      type="radio"
+                      name={`question_${question._id}`}
+                      value={alternative}
+                      checked={answers[question._id] === alternative}
+                      onChange={() => handleAnswerChange(question._id, alternative)}
+                    />
+                    {alternative}
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <button onClick={handleSubmitAnswers}>Submit Answers</button>
     </div>
   );
 }
