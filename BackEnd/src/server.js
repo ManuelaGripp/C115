@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 db.connect()
 
-const PORT = 5001;
+const PORT = 3000;
 
 app.use('/', routes);
 

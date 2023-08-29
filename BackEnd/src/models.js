@@ -4,7 +4,7 @@ const questionSchema = new mongoose.Schema({
     
     title: String,
     alternatives: Array,
-    answer:String
+    answer: String
 })
 
 const questionModel = mongoose.model('questions', questionSchema)
